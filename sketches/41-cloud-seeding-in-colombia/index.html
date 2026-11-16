@@ -51,6 +51,11 @@
   #globe-wrap .g-legend { position: absolute; bottom: 34px; left: 10px; z-index: 2; }
   #globe-wrap .cesium-viewer-bottom { opacity: .8; }
   #globe-wrap .cesium-widget-credits { font-size: 11px; }
+
+  /* Pages from the 1961 article */
+  .paper { margin: 24px 0 0; }
+  .paper img { display: block; max-width: 100%; height: auto; margin: 0 0 20px; border: 1px solid var(--line); }
+  .paper figcaption { font-size: 14px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -72,6 +77,15 @@
 <p class="lede">Who decides when and where clouds are seeded in Colombia, and who lives with the rain that falls, or doesn't fall, as a result?</p>
 <p class="muted small">41 · Camilo · started 2026-11-09</p>
 <p>In 1956 and 1957, W. E. Howell Associates ran a campaign against windstorms in the banana plantations near Santa Marta, on the Caribbean coast of Colombia (López and Howell, 1961). The map below is the study zone from their article, laid over the weather of 1956 as ERA5 reconstructs it.</p>
+
+<figure class="paper">
+  <img src="img/lopez-howell-1961-p267-fig2-table2.webp" width="1407" height="862" loading="lazy" alt="Page 267: Fig. 2, average monthly windstorm damage and rainfall, March to November, in the Santa Marta banana zone; Table 2, cumulative frequency of storms and damages.">
+  <img src="img/lopez-howell-1961-p265-abstract.png" width="1171" height="852" loading="lazy" alt="Page 265: title, authors and abstract of the article.">
+  <img src="img/lopez-howell-1961-p269-fig4.png" width="576" height="706" loading="lazy" alt="Page 269: Fig. 4, airflow around a conical hill, in section and in plan, with areas of rising and sinking air.">
+  <img src="img/lopez-howell-1961-seeding-program.png" width="592" height="843" loading="lazy" alt="Section 6, Seeding program conducted in the Santa Marta zone: ground-based silver iodide generators in 1956 and 1957.">
+  <img src="img/lopez-howell-1961-p274-fig5.png" width="1185" height="819" loading="lazy" alt="Page 274: Fig. 5, yearly number of storms against yearly damages for seeded and unseeded seasons.">
+  <figcaption>Manuel E. López and Wallace E. Howell, “The Campaign Against Windstorms in the Banana Plantations Near Santa Marta, Colombia, 1956–57”, <em>Bulletin of the American Meteorological Society</em> 42, no. 4 (April 1961): 265–274. © American Meteorological Society. Screenshots of the article.</figcaption>
+</figure>
 
 <!-- 2. Simulate -->
 <h2>Simulate</h2>
@@ -121,7 +135,7 @@
 
 <h2>Sources and limits</h2>
 <ul>
-  <li><strong>Study zone map:</strong> archival figure (cartographic) from Manuel E. López and Wallace E. Howell, “The Campaign Against Windstorms in the Banana Plantations Near Santa Marta, Colombia, 1956–57”, <em>Bulletin of the American Meteorological Society</em> 42, no. 4 (April 1961): 265. © American Meteorological Society. Georeferenced by Camilo (Web Mercator). Colours inverted here: paper black, lines white. Permission to publish: to check with the AMS.</li>
+  <li><strong>Study zone map:</strong> archival figure (cartographic) from Manuel E. López and Wallace E. Howell, “The Campaign Against Windstorms in the Banana Plantations Near Santa Marta, Colombia, 1956–57”, <em>Bulletin of the American Meteorological Society</em> 42, no. 4 (April 1961): 265. © American Meteorological Society. Georeferenced by Camilo (Web Mercator). Colours inverted here: paper black, lines white. The page screenshots at the top are from the same article (pages 265–274). Permission to publish the map and the screenshots: to check with the AMS.</li>
   <li><strong>Weather:</strong> ERA5 hourly reanalysis (reanalysed), ECMWF / Copernicus Climate Change Service, served by the Open-Meteo historical weather API (models=era5, no terrain correction). Licence: CC BY 4.0. Grid 0.25° (about 28 km); the model itself runs at about 31 km. Every 6 hours through 1956: rain is the 6-hour total, gust the 6-hour maximum, the rest the value at that moment. Nothing is smoothed. Download date and details: <code>data/era5-1956.json</code> and <code>tools/fetch_era5.py</code>.</li>
   <li><strong>Basemap:</strong> © OpenStreetMap contributors (ODbL), standard tiles from tile.openstreetmap.org, turned grey and inverted here (grey and darkened in 3D).</li>
   <li><strong>Terrain (Simulate v2):</strong> Re:Earth Terrain, <a href="https://terrain.reearth.land/">terrain.reearth.land</a> (code MIT), tileset “mapterhorn-egm08”: the Mapterhorn global elevation model, a blend of several public elevation datasets (CC BY 4.0), with EGM2008 geoid heights (NGA). Elevation is measured from space in recent decades, not in 1956. Which datasets make up Mapterhorn here, and their resolution: to check. Tiles are loaded live; detail grows as you zoom in and averages out peaks from far away (the Sierra shows about 5,340 m, the real summit about 5,700 m). Heights are true scale.</li>

@@ -4,7 +4,7 @@ Working notes for sketch 41. Read this first. Date each entry, and move items to
 
 ## Next
 
-- Check with the AMS whether the 1961 figure can be published on the public site.
+- Check with the AMS whether the 1961 figure and the page screenshots can be published on the public site.
 - Lab member: put the original GeoTIFF on Box with `node scripts/assets.mjs add 41 <path> --about "..."`.
 
 ## Decisions
@@ -31,3 +31,4 @@ Working notes for sketch 41. Read this first. Date each entry, and move items to
 - 2026-11-16: ERA5 1956 downloaded from Open-Meteo: 7 layers, every 6 hours, no missing values. No CAPE for ERA5 on Open-Meteo.
 - 2026-11-16: basemap switched from CARTO (now asks for an API key) to OpenStreetMap tiles, darkened with a CSS filter.
 - 2026-11-16: Simulate v2: 3D globe with the 1961 map on the terrain and ERA5 as a sky at 5,000 m.
+- 2026-11-16: five screenshots of the 1961 article at the top of the page, for discussion in the next session.
