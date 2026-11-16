@@ -3,7 +3,8 @@
 Usage:
     python3 tools/prepare_map.py path/to/bams-1520-0477-42_4_265-2_modified.tif
 
-Writes data/map-1961.png (paper black, lines white) and data/map-1961.json
+Writes data/map-1961.png (paper black, lines white), data/map-1961-geo.png (the same,
+re-mapped row by row to even steps of latitude, for the 3D globe) and data/map-1961.json
 (the corners in degrees, read from the GeoTIFF tags). Needs Pillow only.
 
 The GeoTIFF is in Web Mercator (EPSG:3857), the same projection as the web map,
@@ -49,6 +50,18 @@ def main(src):
     out = HERE / "data"
     out.mkdir(exist_ok=True)
     grey.save(out / "map-1961.png", optimize=True)
+
+    # The 3D globe (CesiumJS) lays a single image in even steps of latitude, not Web Mercator.
+    # Re-map each output row to the source row at the same latitude (nearest row, no blending),
+    # so the map sits exactly where its georeferencing puts it. Columns are unchanged.
+    north, south = lat(y0), lat(y1)
+    geo = Image.new("L", (w, h))
+    for i in range(h):
+        la = north - (i + 0.5) * (north - south) / h
+        y = R * math.log(math.tan(math.pi / 4 + math.radians(la) / 2))
+        src = min(h - 1, max(0, int((y0 - y) / sy)))
+        geo.paste(grey.crop((0, src, w, src + 1)), (0, i))
+    geo.save(out / "map-1961-geo.png", optimize=True)
     corners = {
         "about": "Corners of map-1961.png in degrees (WGS 84), from the GeoTIFF tags (EPSG:3857).",
         "west": round(lon(x0), 6), "east": round(lon(x1), 6),

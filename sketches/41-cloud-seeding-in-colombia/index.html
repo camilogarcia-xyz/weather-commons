@@ -44,6 +44,13 @@
   .status { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 1000; }
   .status:empty { display: none; }
   @media (max-width: 560px) { .panel { max-width: 220px; } .legend .bar, .legend .ticks { width: 170px; } }
+
+  /* Simulate v2: the 3D globe */
+  #globe { height: min(80vh, 760px); min-height: 440px; background: #111; border: 1px solid var(--line); }
+  #globe-wrap .g-menu { position: absolute; top: 10px; right: 10px; z-index: 2; }
+  #globe-wrap .g-legend { position: absolute; bottom: 34px; left: 10px; z-index: 2; }
+  #globe-wrap .cesium-viewer-bottom { opacity: .8; }
+  #globe-wrap .cesium-widget-credits { font-size: 11px; }
 </style>
 </head>
 <body>
@@ -75,6 +82,35 @@
 <p class="label">Map: archival figure (cartographic), López and Howell 1961, inverted. Squares: ERA5 (reanalysed), one per 0.25° cell, not smoothed. Basemap: OpenStreetMap, made grey and dark here.</p>
 <p class="small muted">Drag to move and scroll or pinch to zoom, within the study zone. Choose a variable and a time in the menu. Point at a square to read its value.</p>
 
+<!-- 2b. Simulate v2: the same map and data in 3D -->
+<h2>Simulate v2</h2>
+<p>The same 1961 map, laid onto the terrain, with ERA5 as a sky at 5,000 metres. You start low over the Ciénaga Grande, west of the banana zone, looking east to the Sierra Nevada. The highest peaks, near 5,700 metres, rise through the sky layer.</p>
+<div class="map-wrap full" id="globe-wrap">
+  <div id="globe" role="application" aria-label="3D view of the Santa Marta study zone with ERA5 weather for 1956 at 5,000 metres"></div>
+  <div class="panel g-menu">
+    <h3><label for="g-variable">ERA5 sky layer</label></h3>
+    <select id="g-variable"><option value="off">Off</option></select>
+    <h3 style="margin-top:12px"><label for="g-time">Time, 1956</label></h3>
+    <input id="g-time" type="range" min="0" max="0" value="0" step="1">
+    <div class="stepper">
+      <button id="g-back" type="button" aria-label="Previous time, 6 hours earlier">&larr;</button>
+      <div class="when" id="g-when" aria-live="polite">–</div>
+      <button id="g-fwd" type="button" aria-label="Next time, 6 hours later">&rarr;</button>
+    </div>
+    <p>Uncertainty: see the menu of the map above.</p>
+  </div>
+  <div class="panel legend g-legend" id="g-legend" hidden>
+    <h3 id="g-lg-title">–</h3><div class="bar" id="g-lg-bar"></div>
+    <div class="ticks"><span id="g-lg-lo"></span><span id="g-lg-mid"></span><span id="g-lg-hi"></span></div>
+    <p id="g-lg-note"></p>
+    <div class="kind">Reanalysed · ERA5 · 0.25° squares at 5,000 m</div>
+    <div class="readout" id="g-readout">Point at a square to read it.</div>
+  </div>
+  <div class="status panel" id="g-status" role="status">The 3D view loads when you reach it.</div>
+</div>
+<p class="label">Terrain: Re:Earth Terrain (Mapterhorn elevation, observed from space in recent decades, not 1956). Map: archival figure (cartographic), López and Howell 1961, laid straight down onto the terrain. Sky: ERA5 (reanalysed) at 5,000 m, 0.25° squares, not smoothed. Basemap: OpenStreetMap, grey.</p>
+<p class="small muted">Drag to move. Scroll or right-drag to zoom. Ctrl + drag, or middle-drag, to tilt and turn around a point. On touch screens: one finger moves, two fingers zoom and tilt. You can't go far beyond the study zone or below the ground.</p>
+
 <!-- 3. Situate -->
 <h2>Situate</h2>
 <p>The zone runs from the Magdalena river and Barranquilla in the west to the Sierra Nevada de Santa Marta and the César river in the east, with the banana zone on the Sierra's western slopes.</p>
@@ -87,7 +123,9 @@
 <ul>
   <li><strong>Study zone map:</strong> archival figure (cartographic) from Manuel E. López and Wallace E. Howell, “The Campaign Against Windstorms in the Banana Plantations Near Santa Marta, Colombia, 1956–57”, <em>Bulletin of the American Meteorological Society</em> 42, no. 4 (April 1961): 265. © American Meteorological Society. Georeferenced by Camilo (Web Mercator). Colours inverted here: paper black, lines white. Permission to publish: to check with the AMS.</li>
   <li><strong>Weather:</strong> ERA5 hourly reanalysis (reanalysed), ECMWF / Copernicus Climate Change Service, served by the Open-Meteo historical weather API (models=era5, no terrain correction). Licence: CC BY 4.0. Grid 0.25° (about 28 km); the model itself runs at about 31 km. Every 6 hours through 1956: rain is the 6-hour total, gust the 6-hour maximum, the rest the value at that moment. Nothing is smoothed. Download date and details: <code>data/era5-1956.json</code> and <code>tools/fetch_era5.py</code>.</li>
-  <li><strong>Basemap:</strong> © OpenStreetMap contributors (ODbL), standard tiles from tile.openstreetmap.org, turned grey and inverted here.</li>
+  <li><strong>Basemap:</strong> © OpenStreetMap contributors (ODbL), standard tiles from tile.openstreetmap.org, turned grey and inverted here (grey and darkened in 3D).</li>
+  <li><strong>Terrain (Simulate v2):</strong> Re:Earth Terrain, <a href="https://terrain.reearth.land/">terrain.reearth.land</a> (code MIT), tileset “mapterhorn-egm08”: the Mapterhorn global elevation model, a blend of several public elevation datasets (CC BY 4.0), with EGM2008 geoid heights (NGA). Elevation is measured from space in recent decades, not in 1956. Which datasets make up Mapterhorn here, and their resolution: to check. Tiles are loaded live; detail grows as you zoom in and averages out peaks from far away (the Sierra shows about 5,340 m, the real summit about 5,700 m). Heights are true scale.</li>
+  <li><strong>3D view:</strong> CesiumJS 1.146.0 (Apache-2.0), loaded from the jsDelivr CDN. The sky layer sits 5,000 m above the WGS 84 ellipsoid, within about 10 m of sea level here.</li>
 </ul>
 <p>What this sketch cannot show: where or when clouds were actually seeded, or whether seeding changed anything. ERA5 for 1956 rests on few observations (no weather satellites, few stations in this region), and its rainfall is the model's own calculation, not measured rain. One ERA5 square is wider than the banana zone, so storms, valleys and the slopes of the Sierra are averaged inside each square.</p>
 
@@ -156,6 +194,7 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 const cellRenderer = L.canvas({ pane: 'cells', padding: 0.2 });
 let era5 = null, cells = [], current = { key: 'precipitation', frame: 0 };
+let era5Resolve; const era5Ready = new Promise((r) => { era5Resolve = r; });   // shared with Simulate v2
 const loaded = {};   // variable key -> Float32Array of values (NaN = missing)
 const scales = {};
 
@@ -216,6 +255,7 @@ async function start() {
     const r = await fetch('data/era5-1956.json');
     if (!r.ok) throw new Error(r.status);
     era5 = await r.json();
+    era5Resolve(era5);
   } catch (e) {
     fitTo(imgBounds, imgBounds);
     say('ERA5 data is not here yet. The map works without it.');
@@ -366,6 +406,236 @@ function showValue(r, c, lat, lon) {
 }
 
 start().catch((e) => { console.error(e); say('Something went wrong loading the map. See the browser console.'); });
+</script>
+
+<script>
+// ===========================================================================
+// Simulate v2: the 3D globe. CesiumJS (Apache-2.0) is loaded from the jsDelivr CDN only when
+// this section comes into view. It reuses the ERA5 data, colour scales and ranges from above.
+const CESIUM_BASE = 'https://cdn.jsdelivr.net/npm/cesium@1.146.0/Build/Cesium/';
+const TERRAIN_URL = 'https://terrain.reearth.land/cesium-mesh/ellipsoid';   // reearth terrain, no key
+const SKY_HEIGHT = 5000;          // metres above the WGS 84 ellipsoid (about sea level here)
+const SKY_OPACITY = 0.62;
+// Start low over the Ciénaga Grande, west of the banana zone, looking east to the Sierra Nevada.
+const START = { lon: -74.40, lat: 10.70, height: 700, heading: 78, pitch: 12 };
+// How far you can go: the study zone map plus about 0.6 degrees around it, up to 60 km high.
+const LIMIT = { west: -75.65, east: -72.20, south: 9.35, north: 12.15, low: 120, high: 60000 };
+
+const gs = (text) => { const el = $('g-status'); el.textContent = text; el.hidden = !text; };
+const gNow = { key: 'precipitation', frame: 0 };
+let viewer = null, sky = null, C = null;
+
+function loadCesium() {
+  return new Promise((resolve, reject) => {
+    if (window.Cesium) return resolve(window.Cesium);
+    window.CESIUM_BASE_URL = CESIUM_BASE;
+    const css = document.createElement('link');
+    css.rel = 'stylesheet'; css.href = CESIUM_BASE + 'Widgets/widgets.css';
+    document.head.appendChild(css);
+    const s = document.createElement('script');
+    s.src = CESIUM_BASE + 'Cesium.js';
+    s.onload = () => resolve(window.Cesium);
+    s.onerror = () => reject(new Error('CesiumJS did not load'));
+    document.head.appendChild(s);
+  });
+}
+
+async function startGlobe() {
+  gs('Loading the 3D view…');
+  C = await loadCesium();
+  const corners = await (await fetch('data/map-1961.json')).json();
+
+  viewer = new C.Viewer('globe', {
+    baseLayer: false, baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false,
+    navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false,
+    infoBox: false, selectionIndicator: false, scene3DOnly: true,
+    requestRenderMode: true, maximumRenderTimeChange: Infinity,
+  });
+  const scene = viewer.scene, globe = scene.globe;
+
+  // Terrain: reearth terrain tiles. If they don't answer, fall back to a flat globe and say so.
+  try {
+    viewer.terrainProvider = await C.CesiumTerrainProvider.fromUrl(TERRAIN_URL, { requestVertexNormals: true });
+  } catch (e) {
+    console.error(e);
+    gs('The terrain service did not answer, so the ground is flat for now.');
+  }
+
+  // Dark look: no stars or blue sky; terrain shaded by a fixed light from the north-west.
+  scene.skyBox.show = false; scene.sun.show = false; scene.moon.show = false;
+  scene.skyAtmosphere.show = false; globe.showGroundAtmosphere = false;
+  scene.backgroundColor = C.Color.fromCssColorString('#161616');
+  globe.baseColor = C.Color.fromCssColorString('#2e2e2e');
+  scene.fog.enabled = true; scene.fog.density = 0.00012;
+  const centre = C.Cartesian3.fromDegrees(-74.0, 10.75);
+  const enu = C.Transforms.eastNorthUpToFixedFrame(centre);
+  const lightDir = C.Matrix4.multiplyByPointAsVector(enu, new C.Cartesian3(0.55, -0.55, -0.65), new C.Cartesian3());
+  scene.light = new C.DirectionalLight({ direction: C.Cartesian3.normalize(lightDir, lightDir), intensity: 2.2 });
+  globe.enableLighting = true; globe.dynamicAtmosphereLighting = false;
+
+  // Basemap: OpenStreetMap tiles, made grey and dark.
+  const osm = viewer.imageryLayers.addImageryProvider(new C.OpenStreetMapImageryProvider({ url: 'https://tile.openstreetmap.org/' }));
+  osm.saturation = 0; osm.brightness = 0.38; osm.contrast = 1.1;
+
+  // The 1961 map, laid straight down onto the terrain at its georeferenced corners.
+  // map-1961-geo.png is map-1961.png re-mapped to even steps of latitude (tools/prepare_map.py).
+  const mapProvider = await C.SingleTileImageryProvider.fromUrl('data/map-1961-geo.png', {
+    rectangle: C.Rectangle.fromDegrees(corners.west, corners.south, corners.east, corners.north),
+    credit: 'Map: López & Howell 1961, BAMS',
+  });
+  viewer.imageryLayers.addImageryProvider(mapProvider);
+
+  // Camera: start position, zoom limits, and a box you can't leave.
+  viewer.camera.setView({
+    destination: C.Cartesian3.fromDegrees(START.lon, START.lat, START.height),
+    orientation: { heading: C.Math.toRadians(START.heading), pitch: C.Math.toRadians(START.pitch), roll: 0 },
+  });
+  const ssc = scene.screenSpaceCameraController;
+  ssc.minimumZoomDistance = LIMIT.low; ssc.maximumZoomDistance = LIMIT.high; ssc.enableCollisionDetection = true;
+  scene.preRender.addEventListener(keepInside);
+
+  // ERA5 sky: one flat square per grid point at 5,000 m, coloured like the map above.
+  const data = await era5Ready;
+  const g = data.grid, h = g.step / 2, instances = [];
+  for (let r = 0; r < g.rows; r++) {
+    for (let c = 0; c < g.cols; c++) {
+      const lat = g.north - r * g.step, lon = g.west + c * g.step;
+      instances.push(new C.GeometryInstance({
+        id: { index: r * g.cols + c, r, c, lat, lon },
+        geometry: new C.RectangleGeometry({
+          rectangle: C.Rectangle.fromDegrees(lon - h, lat - h, lon + h, lat + h),
+          height: SKY_HEIGHT, vertexFormat: C.PerInstanceColorAppearance.FLAT_VERTEX_FORMAT,
+        }),
+        attributes: { color: C.ColorGeometryInstanceAttribute.fromColor(C.Color.TRANSPARENT) },
+      }));
+    }
+  }
+  sky = scene.primitives.add(new C.Primitive({
+    geometryInstances: instances, asynchronous: false, releaseGeometryInstances: false,
+    appearance: new C.PerInstanceColorAppearance({ flat: true, translucent: true, closed: false }),
+  }));
+  // The squares exist only after one render; wait for it before colouring them.
+  await new Promise((done) => {
+    const off = scene.postRender.addEventListener(() => { off(); done(); });
+    scene.requestRender();
+  });
+
+  // Pointing at a square shows its value.
+  new C.ScreenSpaceEventHandler(scene.canvas).setInputAction((m) => {
+    const picked = scene.pick(m.endPosition);
+    showGlobeValue(picked && picked.id && picked.id.index !== undefined ? picked.id : null);
+  }, C.ScreenSpaceEventType.MOUSE_MOVE);
+
+  // Menu
+  const sel = $('g-variable');
+  for (const [key, v] of Object.entries(data.variables)) {
+    const o = document.createElement('option');
+    o.value = key; o.textContent = `${v.label} (${v.unit})`;
+    sel.appendChild(o);
+  }
+  if (!data.variables[gNow.key]) gNow.key = Object.keys(data.variables)[0] || 'off';
+  sel.value = gNow.key;
+  const time = $('g-time');
+  time.max = data.frames.length - 1;
+  const april = data.frames.findIndex((f) => f.startsWith('1956-04-01'));
+  gNow.frame = april >= 0 ? april : 0;
+  time.value = gNow.frame;
+  sel.addEventListener('change', () => { gNow.key = sel.value; drawGlobe(); });
+  time.addEventListener('input', () => { gNow.frame = +time.value; drawGlobe(); });
+  $('g-back').addEventListener('click', () => stepGlobe(-1));
+  $('g-fwd').addEventListener('click', () => stepGlobe(1));
+  if (!$('g-status').textContent.startsWith('The terrain')) gs('');
+  drawGlobe();
+}
+
+function keepInside() {
+  const cam = viewer.camera, p = cam.positionCartographic;
+  const lon = C.Math.toDegrees(p.longitude), lat = C.Math.toDegrees(p.latitude);
+  const lon2 = Math.min(LIMIT.east, Math.max(LIMIT.west, lon));
+  const lat2 = Math.min(LIMIT.north, Math.max(LIMIT.south, lat));
+  const h2 = Math.min(LIMIT.high, p.height);
+  if (lon2 !== lon || lat2 !== lat || h2 !== p.height) {
+    cam.setView({ destination: C.Cartesian3.fromDegrees(lon2, lat2, h2),
+                  orientation: { heading: cam.heading, pitch: cam.pitch, roll: cam.roll } });
+  }
+}
+
+function stepGlobe(d) {
+  const t = $('g-time');
+  gNow.frame = Math.min(+t.max, Math.max(0, gNow.frame + d));
+  t.value = gNow.frame;
+  drawGlobe();
+}
+
+let globeToken = 0;
+async function drawGlobe() {
+  if (!sky) return;
+  const token = ++globeToken;
+  const data = era5;
+  const iso = data.frames[gNow.frame];
+  const t = new Date(iso.replace('Z', ':00Z')), local = new Date(t.getTime() - 5 * 3600e3);
+  const day = (d) => d.toLocaleDateString('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' });
+  const hm = (d) => d.toISOString().slice(11, 16);
+  $('g-when').innerHTML = `${day(t)}, ${hm(t)} UTC<small>${day(local)}, ${hm(local)} in Colombia (UTC−5)</small>`;
+  $('g-back').disabled = gNow.frame === 0;
+  $('g-fwd').disabled = gNow.frame === data.frames.length - 1;
+
+  const n = data.grid.rows * data.grid.cols;
+  if (gNow.key === 'off') {
+    for (let i = 0; i < n; i++) setSky(i, C.Color.TRANSPARENT);
+    $('g-legend').hidden = true;
+    viewer.scene.requestRender();
+    return;
+  }
+  const v = data.variables[gNow.key];
+  const [vals, s] = await Promise.all([load(gNow.key), scaleFor(gNow.key)]);
+  if (token !== globeToken) return;
+  const stops = RAMPS[s.ramp], base = gNow.frame * n;
+  for (let i = 0; i < n; i++) {
+    const x = vals[base + i];
+    if (Number.isNaN(x) || (s.zeroClear && x < s.zeroClear)) { setSky(i, C.Color.TRANSPARENT); continue; }
+    setSky(i, C.Color.fromCssColorString(rampColor(stops, (x - s.lo) / (s.hi - s.lo))).withAlpha(SKY_OPACITY));
+  }
+  viewer.scene.requestRender();
+
+  const f = (x) => x.toFixed(s.digits);
+  $('g-legend').hidden = false;
+  $('g-lg-title').textContent = `${v.label} (${v.unit})`;
+  $('g-lg-bar').style.background = `linear-gradient(to right, ${stops.join(',')})`;
+  $('g-lg-lo').textContent = (s.type === 'seq0' ? '' : '≤ ') + f(s.lo);
+  $('g-lg-mid').textContent = s.type === 'div' ? `${f(s.mid)} avg.` : '';
+  $('g-lg-hi').textContent = '≥ ' + f(s.hi);
+  $('g-lg-note').textContent = (s.type === 'seq0' ? 'No colour: under 0.1 mm. ' : '')
+    + (s.type === 'div' ? 'Grey: the 1956 average for this area. ' : '')
+    + `Each square shows the ${v.frame}.`;
+}
+
+function setSky(i, color) {
+  const a = sky.getGeometryInstanceAttributes(instancesId(i));
+  if (a) a.color = C.ColorGeometryInstanceAttribute.toValue(color, a.color);
+}
+const idCache = [];
+function instancesId(i) {
+  if (!idCache.length) for (const inst of sky.geometryInstances) idCache[inst.id.index] = inst.id;
+  return idCache[i];
+}
+
+function showGlobeValue(id) {
+  const out = $('g-readout');
+  if (!id || gNow.key === 'off' || !loaded[gNow.key]) { out.textContent = 'Point at a square to read it.'; return; }
+  const v = era5.variables[gNow.key], s = scales[gNow.key];
+  const n = era5.grid.rows * era5.grid.cols;
+  const x = loaded[gNow.key][gNow.frame * n + id.index];
+  const where = `${Math.abs(id.lat).toFixed(2)}°N ${Math.abs(id.lon).toFixed(2)}°W`;
+  out.textContent = Number.isNaN(x) ? `${where}: no value` : `${where}: ${x.toFixed(s ? s.digits : 1)} ${v.unit}`;
+}
+
+// Load the 3D view only when it comes near the screen.
+new IntersectionObserver((entries, obs) => {
+  if (!entries.some((e) => e.isIntersecting)) return;
+  obs.disconnect();
+  startGlobe().catch((e) => { console.error(e); gs('The 3D view could not start: ' + e.message); });
+}, { rootMargin: '300px' }).observe($('globe-wrap'));
 </script>
 </body>
 </html>
