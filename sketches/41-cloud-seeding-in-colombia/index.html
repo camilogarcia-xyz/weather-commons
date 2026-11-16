@@ -4,8 +4,46 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>41 · Cloud seeding in Colombia · Realtime Weather</title>
-<!-- style.css is the shared Realtime Weather look, copied into this folder. Add your own styles below it. -->
+<!-- style.css is the shared Realtime Weather look, copied into this folder. -->
 <link rel="stylesheet" href="style.css">
+<!-- Leaflet 1.9.4, a small map library (BSD-2-Clause, see lib/LEAFLET-LICENSE), copied into this folder. -->
+<link rel="stylesheet" href="lib/leaflet.css">
+<style>
+  /* The map is always dark, whatever the page's light or dark mode. */
+  .map-wrap { position: relative; margin: 16px 0 8px; }
+  #map { height: min(78vh, 720px); min-height: 420px; background: #2b2b2b; border: 1px solid var(--line); }
+  /* Dark grey basemap: CARTO's dark tiles, lifted so they stay apart from the black map paper. */
+  .leaflet-tile-pane { filter: brightness(2.3) saturate(0); }
+  /* The map's white lines, drawn again above the ERA5 squares. "screen" lets black through. */
+  .leaflet-lines-pane { mix-blend-mode: screen; }
+  .leaflet-container { font: 13px/1.4 var(--font); }
+  .leaflet-container a { color: #ddd; }
+  .leaflet-control-attribution { background: rgba(0,0,0,.7) !important; color: #bbb; }
+
+  .panel { background: rgba(0,0,0,.86); color: #fff; border: 1px solid #fff; padding: 10px 12px; max-width: 290px; }
+  .panel h3 { margin: 0 0 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+  .panel p { margin: 6px 0 0; color: #ccc; font-size: 12px; }
+  .panel select, .panel button { font: 13px var(--font); background: #000; color: #fff; border: 1px solid #fff; border-radius: 0; padding: 3px 6px; }
+  .panel select { width: 100%; }
+  .panel button { cursor: pointer; min-width: 34px; }
+  .panel button:disabled { opacity: .4; cursor: default; }
+  .panel input[type=range] { width: 100%; accent-color: #fff; margin: 8px 0 4px; }
+  .when { font-variant-numeric: tabular-nums; font-size: 14px; }
+  .when small { color: #bbb; font-size: 12px; display: block; }
+  .stepper { display: flex; gap: 6px; align-items: center; }
+  .stepper .when { flex: 1; text-align: center; }
+  details.uncert { margin-top: 10px; border-top: 1px solid #555; padding-top: 6px; }
+  details.uncert summary { cursor: pointer; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+  details.uncert p { font-size: 12px; }
+
+  .legend .bar { height: 12px; width: 220px; border: 1px solid #fff; }
+  .legend .ticks { display: flex; justify-content: space-between; width: 220px; font-variant-numeric: tabular-nums; font-size: 12px; color: #ddd; }
+  .legend .kind { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #bbb; margin-top: 6px; }
+  .legend .readout { font-variant-numeric: tabular-nums; margin-top: 6px; min-height: 1.4em; color: #fff; }
+  .status { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 1000; }
+  .status:empty { display: none; }
+  @media (max-width: 560px) { .panel { max-width: 220px; } .legend .bar, .legend .ticks { width: 170px; } }
+</style>
 </head>
 <body>
 <main>
@@ -22,59 +60,311 @@
 
 <h1>Cloud seeding in Colombia</h1>
 
-<!-- 1. Event: what are you looking at, and what do you want to find out? -->
+<!-- 1. Event -->
 <p class="lede">Who decides when and where clouds are seeded in Colombia, and who lives with the rain that falls, or doesn't fall, as a result?</p>
 <p class="muted small">41 · Camilo · started 2026-11-09</p>
+<p>In 1956 and 1957, W. E. Howell Associates ran a campaign against windstorms in the banana plantations near Santa Marta, on the Caribbean coast of Colombia (López and Howell, 1961). The map below is the study zone from their article, laid over the weather of 1956 as ERA5 reconstructs it.</p>
 
-<!-- 2. Simulate: a first model. This placeholder shows dots drifting in one steady wind. -->
+<!-- 2. Simulate -->
 <h2>Simulate</h2>
-<canvas id="view" width="1200" height="600"></canvas>
-<p class="label">Synthetic: a steady east wind, made up for this template. Not observed data, and not Colombian weather.</p>
+<div class="map-wrap full">
+  <div id="map" role="application" aria-label="Map of the Santa Marta study zone with ERA5 weather for 1956"></div>
+  <div class="status panel" id="status" role="status"></div>
+</div>
+<p class="label">Map: archival figure (cartographic), López and Howell 1961, inverted. Squares: ERA5 (reanalysed), one per 0.25° cell, not smoothed. Basemap: OpenStreetMap and CARTO.</p>
+<p class="small muted">Drag to move and scroll or pinch to zoom, within the study zone. Choose a variable and a time in the menu. Point at a square to read its value.</p>
 
-<!-- 3. Situate: where, when, who. Add a map, places, institutions, dates. -->
+<!-- 3. Situate -->
 <h2>Situate</h2>
-<p>Where and when does this happen? Who runs it, who is affected, and who decides?</p>
+<p>The zone runs from the Magdalena river and Barranquilla in the west to the Sierra Nevada de Santa Marta and the César river in the east, with the banana zone on the Sierra's western slopes.</p>
 
-<!-- 4. Narrate: the story in a few sentences, and what the model cannot show. -->
+<!-- 4. Narrate -->
 <h2>Narrate</h2>
 <p>Tell the story in a few sentences.</p>
 
 <h2>Sources and limits</h2>
 <ul>
-  <li>Wind field: synthetic, made up for this template. It is not observed, and it does not describe any real place or day.</li>
-  <li>Cloud seeding in Colombia: no sources added yet. Each one will be listed here with who made it, when, its licence, and whether it is observed, reanalysed, modelled, synthetic or interpretive.</li>
+  <li><strong>Study zone map:</strong> archival figure (cartographic) from Manuel E. López and Wallace E. Howell, “The Campaign Against Windstorms in the Banana Plantations Near Santa Marta, Colombia, 1956–57”, <em>Bulletin of the American Meteorological Society</em> 42, no. 4 (April 1961): 265. © American Meteorological Society. Georeferenced by Camilo (Web Mercator). Colours inverted here: paper black, lines white. Permission to publish: to check with the AMS.</li>
+  <li><strong>Weather:</strong> ERA5 hourly reanalysis (reanalysed), ECMWF / Copernicus Climate Change Service, served by the Open-Meteo historical weather API (models=era5, no terrain correction). Licence: CC BY 4.0. Grid 0.25° (about 28 km); the model itself runs at about 31 km. Every 6 hours through 1956: rain is the 6-hour total, gust the 6-hour maximum, the rest the value at that moment. Nothing is smoothed. Download date and details: <code>data/era5-1956.json</code> and <code>tools/fetch_era5.py</code>.</li>
+  <li><strong>Basemap:</strong> © OpenStreetMap contributors, © CARTO (dark tiles, made lighter grey here).</li>
 </ul>
-<p>What this sketch cannot show: so far it shows no real data. Nothing on this page yet says where, when or whether clouds were seeded in Colombia.</p>
+<p>What this sketch cannot show: where or when clouds were actually seeded, or whether seeding changed anything. ERA5 for 1956 rests on few observations (no weather satellites, few stations in this region), and its rainfall is the model's own calculation, not measured rain. One ERA5 square is wider than the banana zone, so storms, valleys and the slopes of the Sierra are averaged inside each square.</p>
 
 <footer class="site-footer">
   <p>Cloud seeding in Colombia · Camilo · Realtime Weather working group, Weather Commons</p>
 </footer>
 </main>
-<script>
-  // A tiny simulation: dots carried by a steady wind, with a little random spread.
-  // Replace it with your own model. Load your own files with relative paths, e.g. fetch('data/my-file.json').
-  const canvas = document.getElementById('view');
-  const ctx = canvas.getContext('2d');
-  const ink = getComputedStyle(document.body).color;           // black, or white in dark mode
-  const paper = getComputedStyle(document.body).backgroundColor;
-  const wind = { east: 1.2, north: 0.2 }; // pixels per frame (synthetic)
-  const spread = 0.6;                      // random wobble per frame
-  const dots = Array.from({ length: 1500 }, () => ({ x: Math.random() * canvas.width, y: Math.random() * canvas.height }));
 
-  function step() {
-    ctx.globalAlpha = 0.15;                // fade old positions into trails
-    ctx.fillStyle = paper;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = ink;
-    for (const d of dots) {
-      d.x = (d.x + wind.east + (Math.random() - 0.5) * spread + canvas.width) % canvas.width;
-      d.y = (d.y - wind.north + (Math.random() - 0.5) * spread + canvas.height) % canvas.height;
-      ctx.fillRect(d.x, d.y, 2, 2);
-    }
-    requestAnimationFrame(step);
+<script src="lib/leaflet.js"></script>
+<script>
+// ---------------------------------------------------------------------------
+// Colour scales (scientific, perceptually ordered). Each is a list of stops from low to high.
+// Sequential scales start above black so low values still show on the dark map.
+const RAMPS = {
+  rain:     ['#1d4e89', '#2f6fb8', '#3f8fdd', '#6fb6f0', '#a8d8ff', '#e4f4ff'],               // blues
+  viridis:  ['#3b528b', '#2c728e', '#21918c', '#28ae80', '#5ec962', '#addc30', '#fde725'],     // viridis, upper part
+  cividis:  ['#123570', '#3b496c', '#575d6d', '#8a8779', '#c4b56c', '#fee838'],                // cividis
+  mako:     ['#2a3f78', '#2f6496', '#348ca3', '#3fb5a6', '#7fd8a5', '#def5e5'],                // mako-like teal
+  inferno:  ['#6a176e', '#932667', '#bc3754', '#dd513a', '#f37819', '#fca50a', '#f6d746', '#fcffa4'], // inferno, upper part
+  // Diverging: two hues with a neutral grey centre.
+  temp:     ['#2b83d9', '#79b4e6', '#7a7a7a', '#ef9b7f', '#e0442f'],                           // blue - grey - red
+  pressure: ['#8f6bd6', '#bca9e6', '#7a7a7a', '#f5b56e', '#e6820e'],                           // purple - grey - orange
+};
+
+// How each ERA5 variable is drawn. Range is set from the 1956 data itself (see scaleFor).
+const STYLE = {
+  precipitation: { ramp: 'rain',    type: 'seq0',  digits: 1 },   // 0 mm = no colour
+  temperature:   { ramp: 'temp',    type: 'div',   digits: 1 },
+  wind:          { ramp: 'viridis', type: 'seq',   digits: 1, shareWith: 'gust' },
+  gust:          { ramp: 'viridis', type: 'seq',   digits: 1, shareWith: 'wind' },
+  cloud:         { ramp: 'cividis', type: 'fixed', digits: 0, lo: 0, hi: 100 },
+  vapour:        { ramp: 'mako',    type: 'seq',   digits: 1 },
+  cape:          { ramp: 'inferno', type: 'seq',   digits: 0 },
+  pressure:      { ramp: 'pressure', type: 'div',  digits: 1 },
+};
+
+const CELL_OPACITY = 0.72;
+
+// ---------------------------------------------------------------------------
+const $ = (id) => document.getElementById(id);
+const statusBox = $('status');
+const say = (text) => { statusBox.textContent = text; };
+
+function hexToRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function rampColor(stops, t) {
+  t = Math.min(1, Math.max(0, t));
+  const x = t * (stops.length - 1), i = Math.min(stops.length - 2, Math.floor(x)), f = x - i;
+  const a = hexToRgb(stops[i]), b = hexToRgb(stops[i + 1]);
+  return `rgb(${a.map((v, k) => Math.round(v + (b[k] - v) * f)).join(',')})`;
+}
+function quantile(sorted, q) { return sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))] : NaN; }
+
+// ---------------------------------------------------------------------------
+// The map: limited pan and zoom around the study zone.
+const map = L.map('map', { zoomSnap: 0.5, attributionControl: true, preferCanvas: true });
+map.createPane('paper').style.zIndex = 250;   // the map figure, black paper
+map.createPane('cells').style.zIndex = 300;   // ERA5 squares
+const linesPane = map.createPane('lines');     // the figure's white lines again, on top
+linesPane.style.zIndex = 350; linesPane.style.pointerEvents = 'none';
+linesPane.classList.add('leaflet-lines-pane');
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  subdomains: 'abcd', maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a> · ERA5: Copernicus / ECMWF via Open-Meteo · Map: López &amp; Howell 1961, BAMS',
+}).addTo(map);
+
+const cellRenderer = L.canvas({ pane: 'cells', padding: 0.2 });
+let era5 = null, cells = [], current = { key: 'precipitation', frame: 0 };
+const loaded = {};   // variable key -> Float32Array of values (NaN = missing)
+const scales = {};
+
+// ---------------------------------------------------------------------------
+// Menu (top right): variable, date slider, back / forward, uncertainty note.
+const Menu = L.Control.extend({
+  options: { position: 'topright' },
+  onAdd() {
+    const d = L.DomUtil.create('div', 'panel menu');
+    d.innerHTML = `
+      <h3><label for="variable">ERA5 layer</label></h3>
+      <select id="variable"><option value="off">Off</option></select>
+      <h3 style="margin-top:12px"><label for="time">Time, 1956</label></h3>
+      <input id="time" type="range" min="0" max="0" value="0" step="1">
+      <div class="stepper">
+        <button id="back" type="button" aria-label="Previous time, 6 hours earlier">&larr;</button>
+        <div class="when" id="when" aria-live="polite">–</div>
+        <button id="fwd" type="button" aria-label="Next time, 6 hours later">&rarr;</button>
+      </div>
+      <details class="uncert">
+        <summary>Uncertainty</summary>
+        <p>ERA5 has no per-square uncertainty in this download, so it is described here for the whole layer.</p>
+        <p>1956 is in ERA5's early years. There were no weather satellites, and few stations or weather balloons in northern Colombia, so the model fills most of this area on its own. Treat single squares and single hours with caution; patterns over days and weeks are more reliable.</p>
+        <p>Rainfall in ERA5 is calculated by the model, not measured, and storms smaller than a square are spread across it. ERA5 tends to give too much rain over steep tropical mountains, like the Sierra. Gusts are estimated by the model from wind and turbulence.</p>
+        <p>ECMWF publishes a separate ERA5 ensemble spread (a measure of uncertainty per place and time, at about 63 km). It is not in this sketch yet.</p>
+      </details>`;
+    L.DomEvent.disableClickPropagation(d);
+    L.DomEvent.disableScrollPropagation(d);
+    return d;
+  },
+});
+const Legend = L.Control.extend({
+  options: { position: 'bottomleft' },
+  onAdd() {
+    const d = L.DomUtil.create('div', 'panel legend');
+    d.innerHTML = `<h3 id="lg-title">–</h3><div class="bar" id="lg-bar"></div>
+      <div class="ticks"><span id="lg-lo"></span><span id="lg-mid"></span><span id="lg-hi"></span></div>
+      <p id="lg-note"></p>
+      <div class="kind">Reanalysed · ERA5 · 0.25° squares, not smoothed</div>
+      <div class="readout" id="readout">Point at a square to read it.</div>`;
+    L.DomEvent.disableClickPropagation(d);
+    return d;
+  },
+});
+new Menu().addTo(map);
+const legend = new Legend();
+
+// ---------------------------------------------------------------------------
+async function start() {
+  // 1. The 1961 map, placed by the corners read from its GeoTIFF (tools/prepare_map.py).
+  const corners = await (await fetch('data/map-1961.json')).json();
+  const imgBounds = [[corners.south, corners.west], [corners.north, corners.east]];
+  L.imageOverlay('data/map-1961.png', imgBounds, { pane: 'paper', alt: 'Study zone map from López and Howell 1961, inverted' }).addTo(map);
+  L.imageOverlay('data/map-1961.png', imgBounds, { pane: 'lines', interactive: false, alt: '' }).addTo(map);
+
+  // 2. ERA5 grid and frames.
+  try {
+    const r = await fetch('data/era5-1956.json');
+    if (!r.ok) throw new Error(r.status);
+    era5 = await r.json();
+  } catch (e) {
+    fitTo(imgBounds, imgBounds);
+    say('ERA5 data is not here yet. The map works without it.');
+    return;
   }
-  step();
+  const g = era5.grid, h = g.step / 2;
+  const dataBounds = [[g.south - h, g.west - h], [g.north + h, g.east + h]];
+  fitTo(dataBounds, imgBounds);
+
+  // One square per ERA5 grid point, centred on it.
+  for (let r = 0; r < g.rows; r++) {
+    for (let c = 0; c < g.cols; c++) {
+      const lat = g.north - r * g.step, lon = g.west + c * g.step;
+      const rect = L.rectangle([[lat - h, lon - h], [lat + h, lon + h]], {
+        renderer: cellRenderer, pane: 'cells', stroke: false, fillOpacity: 0, interactive: true,
+      }).addTo(map);
+      rect.on('mouseover', () => showValue(r, c, lat, lon));
+      rect.on('mouseout', () => { $('readout').textContent = 'Point at a square to read it.'; });
+      cells.push(rect);
+    }
+  }
+
+  const sel = $('variable');
+  for (const [key, v] of Object.entries(era5.variables)) {
+    const o = document.createElement('option');
+    o.value = key; o.textContent = `${v.label} (${v.unit})`;
+    sel.appendChild(o);
+  }
+  if (!era5.variables[current.key]) current.key = Object.keys(era5.variables)[0] || 'off';
+  sel.value = current.key;
+
+  const time = $('time');
+  time.max = era5.frames.length - 1;
+  // Start on the first frame of April 1956 (the article's campaign ran in 1956–57).
+  const april = era5.frames.findIndex((f) => f.startsWith('1956-04-01'));
+  current.frame = april >= 0 ? april : 0;
+  time.value = current.frame;
+
+  sel.addEventListener('change', () => { current.key = sel.value; draw(); });
+  time.addEventListener('input', () => { current.frame = +time.value; draw(); });
+  $('back').addEventListener('click', () => step(-1));
+  $('fwd').addEventListener('click', () => step(1));
+  legend.addTo(map);
+  draw();
+}
+
+function fitTo(panBounds, viewBounds) {
+  const pan = L.latLngBounds(panBounds);
+  map.fitBounds(viewBounds, { padding: [10, 10] });
+  const z = map.getZoom();
+  map.setMinZoom(Math.max(z - 1, 0));
+  map.setMaxZoom(z + 3);
+  map.setMaxBounds(pan.pad(0.05));
+  map.options.maxBoundsViscosity = 1.0;
+}
+
+function step(d) {
+  const t = $('time');
+  current.frame = Math.min(+t.max, Math.max(0, current.frame + d));
+  t.value = current.frame;
+  draw();
+}
+
+async function load(key) {
+  if (loaded[key]) return loaded[key];
+  const v = era5.variables[key];
+  say(`Loading ${v.label.toLowerCase()}…`);
+  const buf = await (await fetch(v.file)).arrayBuffer();
+  const raw = new Int16Array(buf);
+  const out = new Float32Array(raw.length);
+  for (let i = 0; i < raw.length; i++) out[i] = raw[i] === -32768 ? NaN : raw[i] * v.scale + v.offset;
+  loaded[key] = out;
+  say('');
+  return out;
+}
+
+// Colour range for a variable, from its 1956 values in this area (1st to 99th percentile),
+// so colours mean the same thing on every date.
+async function scaleFor(key) {
+  if (scales[key]) return scales[key];
+  const st = STYLE[key] || { ramp: 'viridis', type: 'seq', digits: 1 };
+  const keys = st.shareWith && era5.variables[st.shareWith] ? [key, st.shareWith] : [key];
+  let vals = [];
+  for (const k of keys) vals = vals.concat(Array.from(await load(k)).filter((x) => !Number.isNaN(x)));
+  vals.sort((a, b) => a - b);
+  let s;
+  if (st.type === 'fixed') s = { lo: st.lo, hi: st.hi };
+  else if (st.type === 'seq0') s = { lo: 0, hi: quantile(vals.filter((x) => x >= 0.1), 0.99) || 1, zeroClear: 0.1 };
+  else if (st.type === 'div') {
+    const mid = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const half = Math.max(mid - quantile(vals, 0.01), quantile(vals, 0.99) - mid);
+    s = { lo: mid - half, hi: mid + half, mid };
+  } else s = { lo: quantile(vals, 0.01), hi: quantile(vals, 0.99) };
+  scales[key] = { ...s, ...st };
+  return scales[key];
+}
+
+let drawToken = 0;
+async function draw() {
+  const token = ++drawToken;
+  updateWhen();
+  if (current.key === 'off') {
+    for (const c of cells) c.setStyle({ fillOpacity: 0 });
+    if (legend._map) legend.remove();
+    return;
+  }
+  if (!legend._map) legend.addTo(map);
+  const v = era5.variables[current.key];
+  const [vals, s] = await Promise.all([load(current.key), scaleFor(current.key)]);
+  if (token !== drawToken) return;
+  const n = era5.grid.rows * era5.grid.cols, base = current.frame * n, stops = RAMPS[s.ramp];
+  for (let i = 0; i < n; i++) {
+    const x = vals[base + i];
+    if (Number.isNaN(x) || (s.zeroClear && x < s.zeroClear)) { cells[i].setStyle({ fillOpacity: 0 }); continue; }
+    cells[i].setStyle({ fillColor: rampColor(stops, (x - s.lo) / (s.hi - s.lo)), fillOpacity: CELL_OPACITY });
+  }
+  // Legend
+  $('lg-title').textContent = `${v.label} (${v.unit})`;
+  $('lg-bar').style.background = `linear-gradient(to right, ${stops.join(',')})`;
+  const f = (x) => x.toFixed(s.digits);
+  $('lg-lo').textContent = (s.type === 'seq0' ? '' : '≤ ') + f(s.lo);
+  $('lg-mid').textContent = s.type === 'div' ? `${f(s.mid)} avg.` : '';
+  $('lg-hi').textContent = '≥ ' + f(s.hi);
+  $('lg-note').textContent = (s.type === 'seq0' ? 'No colour: under 0.1 mm. ' : '')
+    + (s.type === 'div' ? 'Grey: the 1956 average for this area. ' : '')
+    + `Each square shows the ${v.frame}.`;
+}
+
+function updateWhen() {
+  if (!era5) return;
+  const iso = era5.frames[current.frame];
+  const t = new Date(iso.replace('Z', ':00Z'));
+  const local = new Date(t.getTime() - 5 * 3600e3);
+  const day = (d) => d.toLocaleDateString('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' });
+  const hm = (d) => d.toISOString().slice(11, 16);
+  $('when').innerHTML = `${day(t)}, ${hm(t)} UTC<small>${day(local)}, ${hm(local)} in Colombia (UTC−5)</small>`;
+  $('back').disabled = current.frame === 0;
+  $('fwd').disabled = current.frame === era5.frames.length - 1;
+}
+
+function showValue(r, c, lat, lon) {
+  if (current.key === 'off' || !loaded[current.key]) return;
+  const v = era5.variables[current.key], s = scales[current.key];
+  const n = era5.grid.rows * era5.grid.cols;
+  const x = loaded[current.key][current.frame * n + r * era5.grid.cols + c];
+  const where = `${Math.abs(lat).toFixed(2)}°${lat >= 0 ? 'N' : 'S'} ${Math.abs(lon).toFixed(2)}°${lon >= 0 ? 'E' : 'W'}`;
+  $('readout').textContent = Number.isNaN(x) ? `${where}: no value` : `${where}: ${x.toFixed(s ? s.digits : 1)} ${v.unit}`;
+}
+
+start().catch((e) => { console.error(e); say('Something went wrong loading the map. See the browser console.'); });
 </script>
 </body>
 </html>

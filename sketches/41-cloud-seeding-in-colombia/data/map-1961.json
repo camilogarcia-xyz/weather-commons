@@ -1,0 +1,10 @@
+{
+  "about": "Corners of map-1961.png in degrees (WGS 84), from the GeoTIFF tags (EPSG:3857).",
+  "west": -75.038845,
+  "east": -72.808113,
+  "south": 9.935205,
+  "north": 11.547594,
+  "width_px": 1506,
+  "height_px": 1108,
+  "pixel_m": 164.89
+}
