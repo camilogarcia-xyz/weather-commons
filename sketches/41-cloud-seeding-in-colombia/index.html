@@ -178,7 +178,7 @@ const Menu = L.Control.extend({
         <summary>Uncertainty</summary>
         <p>ERA5 has no per-square uncertainty in this download, so it is described here for the whole layer.</p>
         <p>1956 is in ERA5's early years. There were no weather satellites, and few stations or weather balloons in northern Colombia, so the model fills most of this area on its own. Treat single squares and single hours with caution; patterns over days and weeks are more reliable.</p>
-        <p>Rainfall in ERA5 is calculated by the model, not measured, and storms smaller than a square are spread across it. Gusts are estimated by the model from wind and turbulence.</p>
+        <p>Rainfall in ERA5 is calculated by the model, not measured, and storms smaller than a square are spread across it. ERA5 tends to give too much rain over steep tropical mountains, like the Sierra. Gusts are estimated by the model from wind and turbulence.</p>
         <p>ECMWF publishes a separate ERA5 ensemble spread (a measure of uncertainty per place and time, at about 63 km). It is not in this sketch yet.</p>
       </details>`;
     L.DomEvent.disableClickPropagation(d);
