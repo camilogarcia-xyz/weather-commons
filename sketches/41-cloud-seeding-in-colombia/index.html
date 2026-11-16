@@ -12,8 +12,9 @@
   /* The map is always dark, whatever the page's light or dark mode. */
   .map-wrap { position: relative; margin: 16px 0 8px; }
   #map { height: min(78vh, 720px); min-height: 420px; background: #2b2b2b; border: 1px solid var(--line); }
-  /* Dark grey basemap: CARTO's dark tiles, lifted so they stay apart from the black map paper. */
-  .leaflet-tile-pane { filter: brightness(2.3) saturate(0); }
+  /* Dark grey basemap: OpenStreetMap's standard tiles (no key needed), turned grey and inverted here
+     so land is dark grey and sea a lighter grey, both apart from the black map paper. */
+  .leaflet-tile-pane { filter: grayscale(1) invert(1) brightness(1.8) contrast(.75); }
   /* The map's white lines, drawn again above the ERA5 squares. "screen" lets black through. */
   .leaflet-lines-pane { mix-blend-mode: screen; }
   .leaflet-container { font: 13px/1.4 var(--font); }
@@ -71,7 +72,7 @@
   <div id="map" role="application" aria-label="Map of the Santa Marta study zone with ERA5 weather for 1956"></div>
   <div class="status panel" id="status" role="status"></div>
 </div>
-<p class="label">Map: archival figure (cartographic), López and Howell 1961, inverted. Squares: ERA5 (reanalysed), one per 0.25° cell, not smoothed. Basemap: OpenStreetMap and CARTO.</p>
+<p class="label">Map: archival figure (cartographic), López and Howell 1961, inverted. Squares: ERA5 (reanalysed), one per 0.25° cell, not smoothed. Basemap: OpenStreetMap, made grey and dark here.</p>
 <p class="small muted">Drag to move and scroll or pinch to zoom, within the study zone. Choose a variable and a time in the menu. Point at a square to read its value.</p>
 
 <!-- 3. Situate -->
@@ -86,7 +87,7 @@
 <ul>
   <li><strong>Study zone map:</strong> archival figure (cartographic) from Manuel E. López and Wallace E. Howell, “The Campaign Against Windstorms in the Banana Plantations Near Santa Marta, Colombia, 1956–57”, <em>Bulletin of the American Meteorological Society</em> 42, no. 4 (April 1961): 265. © American Meteorological Society. Georeferenced by Camilo (Web Mercator). Colours inverted here: paper black, lines white. Permission to publish: to check with the AMS.</li>
   <li><strong>Weather:</strong> ERA5 hourly reanalysis (reanalysed), ECMWF / Copernicus Climate Change Service, served by the Open-Meteo historical weather API (models=era5, no terrain correction). Licence: CC BY 4.0. Grid 0.25° (about 28 km); the model itself runs at about 31 km. Every 6 hours through 1956: rain is the 6-hour total, gust the 6-hour maximum, the rest the value at that moment. Nothing is smoothed. Download date and details: <code>data/era5-1956.json</code> and <code>tools/fetch_era5.py</code>.</li>
-  <li><strong>Basemap:</strong> © OpenStreetMap contributors, © CARTO (dark tiles, made lighter grey here).</li>
+  <li><strong>Basemap:</strong> © OpenStreetMap contributors (ODbL), standard tiles from tile.openstreetmap.org, turned grey and inverted here.</li>
 </ul>
 <p>What this sketch cannot show: where or when clouds were actually seeded, or whether seeding changed anything. ERA5 for 1956 rests on few observations (no weather satellites, few stations in this region), and its rainfall is the model's own calculation, not measured rain. One ERA5 square is wider than the banana zone, so storms, valleys and the slopes of the Sierra are averaged inside each square.</p>
 
@@ -148,9 +149,9 @@ const linesPane = map.createPane('lines');     // the figure's white lines again
 linesPane.style.zIndex = 350; linesPane.style.pointerEvents = 'none';
 linesPane.classList.add('leaflet-lines-pane');
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  subdomains: 'abcd', maxZoom: 19,
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a> · ERA5: Copernicus / ECMWF via Open-Meteo · Map: López &amp; Howell 1961, BAMS',
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors · ERA5: Copernicus / ECMWF via Open-Meteo · Map: López &amp; Howell 1961, BAMS',
 }).addTo(map);
 
 const cellRenderer = L.canvas({ pane: 'cells', padding: 0.2 });
